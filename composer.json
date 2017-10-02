@@ -1,13 +1,8 @@
 {
-	"name": "rodrigobutta/attachable-modules.php",
+	"name": "rodrigobutta/laravel-attachable-modules",
 	"description": "Make your project scalable with isolated modules",
-	"keywords": [
-		"laravel",
-		"modules",
-		"scalable",
-		"laravel 5",
-		"provider"
-	],
+	"keywords": ["laravel","modules","scalable","laravel 5","provider"],
+	"homepage": "https://github.com/rodrigobutta/laravel-attachable-modules",
 	"license": "MIT",
 	"authors": [
 		{
@@ -17,7 +12,7 @@
 	],
 	"require": {
 		"php": ">=7.0.0",
-		"laravel/framework": "~5.2"
+		"laravel/framework": "5.5.*",
 	},
 	"autoload": {
 		"psr-4": {
