@@ -1,5 +1,5 @@
 <?php
-namespace RodrigoButta/AttachableModules;
+namespace RodrigoButta\AttachableModules;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;

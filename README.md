@@ -18,8 +18,9 @@ $ composer update
 config/app.php:
 ```php
 'providers' => [
+    [...]
+    RodrigoButta\AttachableModules\AttachableModulesServiceProvider::class
 
-    'RodrigoButta\AttachableModules\AttachableModulesServiceProvider',
 ],
 ```
 

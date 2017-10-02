@@ -1,5 +1,5 @@
 <?php
-namespace RodrigoButta/AttachableModules;
+namespace RodrigoButta\AttachableModules;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
