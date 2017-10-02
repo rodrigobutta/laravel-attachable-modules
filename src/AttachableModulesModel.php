@@ -76,7 +76,11 @@ class AttachableModulesModel {
 			foreach ($files as $file) {
 				$fileInfo = pathinfo($file);
 
-				if ($fileInfo['extension'] == 'php' && $fileInfo['filename'] == 'CampaignServiceProvider') {
+				if (
+					$fileInfo['extension'] == 'php'
+					&& $this->startsWith($fileInfo['filename'],  $this->config->get('attachable-modules.module_boot_provider_prefix'))
+					&& $this->endsWith($fileInfo['filename'], $this->config->get('attachable-modules.module_boot_provider_suffix'))
+				) {
 					$this->addProvider($fileInfo);
 				}
 			}
@@ -113,7 +117,10 @@ class AttachableModulesModel {
 		$segments = explode("\\",$path);
 		$parentFolder = end($segments);
 
-		return $this->getAppNamespace() . '\\' . $this->getModulesFolderName() . '\\' . $parentFolder . '\\' . $fileInfo['filename'];
+		$name = $fileInfo['filename'];
+		$name = str_replace( $this->config->get('attachable-modules.module_boot_provider_prefix'), '', $name);
+
+		return $this->getAppNamespace() . '\\' . $this->getModulesFolderName() . '\\' . $parentFolder . '\\' . $name;
 	}
 
 	/**
@@ -176,6 +183,21 @@ class AttachableModulesModel {
 		}
 
 		throw new \RuntimeException("Unable to detect application namespace.");
+	}
+
+
+
+	function startsWith($str, $needle)
+	{
+	     $length = strlen($needle);
+	     return (substr($str, 0, $length) === $needle);
+	}
+
+	function endsWith($str, $needle)
+	{
+	    $length = strlen($needle);
+
+	    return $length === 0 || (substr($str, -$length) === $needle);
 	}
 
 }
