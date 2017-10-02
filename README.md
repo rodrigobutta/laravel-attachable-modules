@@ -27,7 +27,7 @@ composer.json:
 
 terminal:
 ```
-$ composer update
+composer update
 ```
 
 config/app.php:
@@ -41,7 +41,7 @@ config/app.php:
 
 terminal:
 ```
-$ php artisan vendor:publish
+php artisan vendor:publish
 ```
 
 
@@ -50,3 +50,17 @@ config/attachable-modules.php
 - **modules_folder_path**: path where modules are located (each module should have its own folder, with the boot provider and any files it needs to run)
 - **module_boot_provider_prefix**: expected prefix for the boot service provider file
 - **module_boot_provider_suffix**: expected suffix for the boot service provider file (without the .php extension)
+
+
+## Adding a module
+
+So easy!
+
+1) Copy the module folder inside app\Modules\ (or the folder you've defined for storing modules)
+
+2) terminal:
+```
+composer dump-autoload
+```
+
+3) The module is now beign called. Depending on the module architecture, you should know how to test or acces its funcions.
