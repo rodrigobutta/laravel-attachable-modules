@@ -56,7 +56,9 @@ class AttachableModulesModel {
 	 */
 	public function run()
 	{
-		$this->registerProviders($this->getProviders());
+		$this->getProviders();
+
+		$this->registerProviders();
 	}
 
 	/**
@@ -67,18 +69,18 @@ class AttachableModulesModel {
 	protected function getProviders()
 	{
 		if (!empty($folder = $this->config->get('attachable-modules.modules_folder_path'))) {
-			// List of all files in directory
-			$files = $this->file->files($folder);
+
+			// $files = $this->file->files($folder);
+			$files = $this->file->allFiles($folder);
 
 			foreach ($files as $file) {
 				$fileInfo = pathinfo($file);
 
-				if ($fileInfo['extension'] == 'php') {
-					$this->addProvider($fileInfo['filename']);
+				if ($fileInfo['extension'] == 'php' && $fileInfo['filename'] == 'CampaignServiceProvider') {
+					$this->addProvider($fileInfo);
 				}
 			}
 
-			$this->addProvidersToManifest();
 		}
 
 		return $this->providers;
@@ -89,14 +91,12 @@ class AttachableModulesModel {
 	 *
 	 * @param $filename
 	 */
-	protected function addProvider($filename)
+	protected function addProvider($fileInfo)
 	{
-		$className = $this->guessClassName($filename);
+		$className = $this->guessClassName($fileInfo);
 
 		if (class_exists($className)) {
-			if ($this->isAddable($className)) {
-				$this->providers[] = $className;
-			}
+			$this->providers[] = $className;
 		}
 	}
 
@@ -106,9 +106,14 @@ class AttachableModulesModel {
 	 * @param $filename
 	 * @return string
 	 */
-	protected function guessClassName($filename)
+	protected function guessClassName($fileInfo)
 	{
-		return $this->getAppNamespace() . '\\' . $this->getProviderFolderName() . '\\' . $filename;
+		$path = $fileInfo["dirname"];
+		$path = str_replace('/','\\', $path); // puede ser necesario para paths linux
+		$segments = explode("\\",$path);
+		$parentFolder = end($segments);
+
+		return $this->getAppNamespace() . '\\' . $this->getModulesFolderName() . '\\' . $parentFolder . '\\' . $fileInfo['filename'];
 	}
 
 	/**
@@ -116,7 +121,7 @@ class AttachableModulesModel {
 	 *
 	 * @return mixed
 	 */
-	protected function getProviderFolderName()
+	protected function getModulesFolderName()
 	{
 		if (!is_null($this->providersFolder)) {
 			return $this->providersFolder;
@@ -134,93 +139,17 @@ class AttachableModulesModel {
 		return $this->providersFolder;
 	}
 
-	/**
-	 * Check if the provider class is addable
-	 *
-	 * @param $provider
-	 * @return bool
-	 */
-	protected function isAddable($provider)
-	{
-		return !$this->isAlreadyLoaded($provider) && !$this->createProvider($provider)->isDeferred();
-	}
-
-	/**
-	 * check if the provider is already loaded in manifest
-	 *
-	 * @param $provider
-	 * @return bool
-	 */
-	protected function isAlreadyLoaded($provider)
-	{
-		$manifest = $this->loadManifest();
-
-		return (in_array($provider, $manifest['providers']));
-	}
-
-	/**
-	 * Load and return manifest data
-	 *
-	 * @return string
-	 */
-	protected function loadManifest()
-	{
-		$manifestPath = $this->getManifestPath();
-
-		if ($this->file->exists($manifestPath)) {
-			return json_decode($this->file->get($manifestPath), true);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Get the path to laravel manifest
-	 *
-	 * @return string
-	 */
-	protected function getManifestPath()
-	{
-		return $this->app->storagePath() . '/framework/services.json';
-	}
-
-	/**
-	 * Create an instance of the provider
-	 *
-	 * @param $provider
-	 * @return ServiceProvider
-	 */
-	protected function createProvider($provider)
-	{
-		return new $provider($this->app);
-	}
-
-	/**
-	 * Overwrite old manifest with new manifest
-	 *
-	 * @return void
-	 */
-	protected function addProvidersToManifest()
-	{
-		$manifest = $this->loadManifest();
-		$manifest['providers'] = array_merge($manifest['providers'], $this->providers);
-		$manifest['eager'] = array_merge($manifest['eager'], $this->providers);
-
-		$this->file->put(
-			$this->getManifestPath(),
-			json_encode($manifest, JSON_PRETTY_PRINT)
-		);
-	}
 
 	/**
 	 * Register providers to laravel's application container
 	 *
 	 * @param $providers
 	 */
-	protected function registerProviders($providers)
+	protected function registerProviders()
 	{
-		foreach ($providers as $provider) {
-			$this->app->register($this->createProvider($provider));
+		foreach ($this->providers as $provider) {
+			$this->app->register($provider);
+
 		}
 	}
 
